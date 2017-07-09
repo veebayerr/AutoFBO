@@ -104,7 +104,7 @@ class Main:
         None
         
     def SignalLength(self):
-        if(carrier.g=GetSignal() == 0): #active low
+        if(carrier.GetSignal() == 0): #active low
                 start = time.now 
                 while(carrier.GetSignal() == 0):
                     continue
