@@ -98,9 +98,11 @@ class Main:
         
 
     def TransmitRadioCheck():
+        '''synthesize and transmit audio for radio check'''
         None
 
     def TransmitWeather():
+        '''synthesize audio for weather'''
         None
         
     def SignalLength(self):
