@@ -3,6 +3,9 @@ This class will handle all the communications with the sensors and will
 store readings into an object to be passed to the main class.
 '''
 from test.test_statistics import AverageMixin
+import Adafruit_ADS1x15
+import math
+import time
 
 class WeatherPolling:
     
@@ -30,7 +33,7 @@ class WeatherPolling:
         averageSpeed = 0
     
         for i in range(0, INTERVAL):                                            #loop - iterate for period of time to collect readings
-            currentSpeed = '''call anemometer'''
+            currentSpeed = adc.read_adc(0, gain = GAIN, data_rate = 3300)
         
             lastSpeed = speedList[-1:]                                          #get last stored reading from list
             speedList.append(currentSpeed)                                      #append most recent reading to list
