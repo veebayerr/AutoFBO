@@ -112,3 +112,5 @@ def temperature():
 	print "Temperature compensated Pressure is : %.2f mbar" %pressure
 	print "Temperature in Celsius : %.2f C" %cTemp
 	print "Temperature in Fahrenheit : %.2f F\n" %fTemp
+	
+	return[cTemp, pressure, humidity]

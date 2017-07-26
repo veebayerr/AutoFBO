@@ -6,6 +6,7 @@ import time
 import math
 import Adafruit_ADS1x15
 from test.test_statistics import AverageMixin
+import temp.py
 
 adc = Adafruit_ADS1x15.ADS1015()
 GAIN = 1
@@ -15,7 +16,7 @@ class WeatherPolling:
     
     verifyGust = False                                                          #initialize global variables
     gust = False                                                                #reset to avoid unexpected behavior at reboot
-    
+    gust_val = 0
     INTERVAL = 50                                                               #global to set interval to find wind speed and wind direction
     SPEEDTHRESHOLD = 10                                                         #global for speed change threshold to report gusts
     
@@ -27,27 +28,47 @@ class WeatherPolling:
         tp = findTempPressure()                                                 #temperature and pressure are read on the same I2C adr so
         self.temperature = tp[0]                                                #findTempPressure function collects both at the same time and returns a list (pair)
         self.pressure = tp[1]                                                   #with both measurements
-        self.humidity = findHumidity()
+        self.humidity = tp[2]
     
     def findWindSpeed():                                                        #This function will call the anemometer and find current wind speed then
                                                                                 #store the new value to an array and calculate the average
         print 'Initializing speed test:'
         adc = Adafruit_ADS1x15.ADS1015()
-        speedList = [0]*3300                                                         
+        speedList = [0]*5                                                        
         currentSpeed = 0
         lastSpeed = 0
         averageSpeed = 0
         counter =0
     
-        for i in range(0, 3300):
-            pulse =  adc.read_adc(0,1,3300)    
-            if pulse < 1000:
-                counter= counter+1
-
-        speed = (counter*2.25)/5.0
-        speed = speed*0.868976        
-
+        for j in range(0, 5):
+            for i in range(0, 3300):
+                pulse =  adc.read_adc(0,1,3300)    
+                if pulse < 1000:
+                    counter= counter+1
+    
+            speed = (counter*2.25)/5.0
+            speed = speed*0.868976        
+        speedList[j] = speed
         print 'Average = ', speed, "Knot\n"
+        
+                                                                 #reset function variables to avoid undesirable behavior each time it's called
+        currentSpeed = 0
+        lastSpeed = 0
+        averageSpeed = 0
+        SPEEDTHRESHOLD = 10
+        
+        for i in range(0, INTERVAL):                                            #loop - iterate for period of time to collect readings
+            currentSpeed = speedList[4]
+            lastSpeed = speedList[0]                                            #get last stored reading from list
+        
+            if((currentSpeed + SPEEDTHRESHOLD > lastSpeed) and (gust = False)): #compare last and most recent speeds to check for a gust
+                gust = True                                                     #if the current speed + the threshold is greater than the last speed that was 
+                                                                                #recorded, then 1st gust flag is true
+            elif((currentSpeed + SPEEDTHRESHOLD > lastSpeed) and (gust = True)):#compare last and most recent speeds and the 1st gust flag to verify if a gust exists
+                verifyGust = True
+            
+    gust_val = currentSpeed        
+            
         return speed
 
     def findWindDirection():                                                    #This function will call the anemometer and compute the
@@ -92,23 +113,20 @@ class WeatherPolling:
         return averageDir        
 
     def findGust():                                                             #This function will check the gust booleans and return a final boolean
+        
                                                                                 #determining whether or not to report a gust
         if(verifyGust  and gust):                                               #if both the gust flags are true then report gust, else no gust
-            reportGust = True
+            #reportGust = True
+            return gust_val
         else:
-            reportGust = False
-    
-        return reportGust                                                       #return boolean for object to be passed to main
+            #reportGust = False
+            return 0
+        #return reportGust                                                       #return boolean for object to be passed to main
 
     def findTempPressure():                                                     #This function will call the temperature/pressure address on the temp sensor to 
                                                                                 #collect the current temperature and pressure reading
-        currentTemp = '''call temp'''                                           #call the sensor and store both readings
-        currentPressure = '''call pres'''
+        currentTemp, currentPres, currenthum =  temperature()                   #call the sensor and store both readings
+        
     
-        return [currentTemp, currentPressure]                                   #return the current temperature and pressure readings (as list)
+        return [currentTemp, currentPres, currenthum]                           #return the current temperature and pressure readings (as list)
 
-    def findHumidity():                                                         #This function will call the humidity address on the temp sensor
-                                                                                #to collect the current humidity reading
-        currentHumidty = '''call humidity'''                                    #call humidity address on temp sensor for current reading
-    
-        return currentHumidty                                                   #return current humidity value
