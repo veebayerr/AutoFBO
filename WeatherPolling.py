@@ -6,7 +6,7 @@ import time
 import math
 import Adafruit_ADS1x15
 from test.test_statistics import AverageMixin
-import temp.py
+import temp
 
 adc = Adafruit_ADS1x15.ADS1015()
 GAIN = 1

@@ -103,17 +103,20 @@ class Main:
         
 
     def TransmitRadioCheck():
+        
         #Play tune
+        print "\a"
         
         #ptt & record
         
         #playback
         
         #getSignal strength
+        adc_str = 0
+        sig = (adc_str/1649)
         None
 
-    def TransmitWeather():
-        #Format: XXXXX weather information, XXXX zulu, Wind XXX at XX (gust XX), Temperature XX, Dew Point XX, Altimeter XXXX, Density Altitude XXXX, Remarks…    
+    def TransmitWeather(): 
         
         #obtain current airport location
         loc = "Orlando Apopka"
@@ -126,70 +129,80 @@ class Main:
         #winddirection
         find = WeatherPolling()
         windir = find.windDirection
+        windir = str(windir)
+
         if(len(windir) == 1):
-            true_dir = '0 ' + '0 ' + str(windir[0])
+            true_dir = '0 ' + '0 ' + windir[0]
         elif(len(windir) == 2):
-            true_dir = '0 ' + str(windir[0])+ ' '+ str(windir[1])
+            true_dir = '0 ' + windir[0]+ ' '+ windir[1]
         elif(len(windir) == 3):
-            true_dir = str(windir[0]) + ' ' + str(windir[1]) + ' ' + str(windir[2])
+            true_dir = windir[0] + ' ' + windir[1] + ' ' + windir[2]
         
         #WindSpeed
         windspeed = find.windSpeed
+        windspeed = str(windspeed)
         if(len(windspeed) == 1):
-            true_speed = '0 '+ str(windspeed[0])
+            true_speed = '0 '+ windspeed[0]
         elif(len(windspeed) == 2):
-            true_speed = str(windspeed[0]) +' ' +str(windspeed[1])
+            true_speed = windspeed[0] +' ' + windspeed[1]
         
         #Gust
         gust = find.gust
+        gust = str(gust)
         if(len(gust) == 2):
-            true_gust = str(gust[0]) +' ' + str(gust[1])
+            true_gust = gust[0] +' ' + gust[1]
         else:
             true_gust = 0
             
         #Temperature 
         ctemp = find.temperature
         rank_temp = ctemp*(493.47)
+        ctemp = str(ctemp)
         if(len(ctemp) == 1):
-            true_ctemp = ctemp
+            true_ctemp = '0 ' + ctemp[0]
         elif(len(ctemp) == 2):
-            true_ctemp = str(ctemp[0]) + ' ' + str(ctemp[1])
-        
+            true_ctemp = ctemp[0] + ' ' + ctemp[1]
+            
         #Altimeter barometric pressure
         pressure = find.pressure
         pressure_inch = "%.2f" % (pressure*(.02953))
-        if(len(pressure_inch) <=3):
-            true_pressure = '0 ' + str(pressure_inch[0])+ ' '+ str(pressure_inch[2])+ ' ' + str(pressure_inch[3])
+        pressure_inch = str(pressure_inch)
+
+        if(len(pressure_inch) <=4):
+            true_pressure = '0 ' + pressure_inch[0]+ ' '+ pressure_inch[2]+ ' ' + pressure_inch[3]
         else:
-            true_pressure = str(pressure_inch[0])+ ' '+ str(pressure_inch[1])+ ' '+ str(pressure_inch[3])+ ' '+ str(pressure_inch[4])
+            true_pressure = pressure_inch[0]+ ' '+ pressure_inch[1]+ ' '+ pressure_inch[3]+ ' '+ pressure_inch[4]
 
         #Humidity
         humidity = find.humidity
         
         #Dew Point
-        dewPoint = ctemp - ((100 - humidity)/5)
+        dewPoint = int(ctemp) - ((100 - humidity)/5)
+        dewPoint = str(dewPoint)
         if(len(dewPoint) == 1):
-            true_dew = '0 '+ str(dewPoint[0])
+            true_dew = '0 '+ dewPoint[0]
         else:
-            true_dew = str(dewPoint[0]) + ' ' + str(dewPoint[1])
+            true_dew = dewPoint[0] + ' ' + dewPoint[1]
         
         #Density Altitude
-        pval = (7.5*dewPoint)/(237.7+ dewPoint)
+        pval = (7.5*int(dewPoint))/(237.7+ int(dewPoint))
         vaporP = (6.11*(10*exp(pval)))
-        vTemp = (ctemp)/(1-(vaporP/pressure)*(1-0.622))
+        vTemp = int(ctemp)/(1-(vaporP/pressure)*(1-0.622))
         vTemp_rank = vTemp*(493.47)
-        densAlt = 145366 *( 1-(17.326*pressure_inch/vTemp_rank)*exp(.235))
+        densAlt = 145366 *( 1-(17.326*float(pressure_inch)/vTemp_rank)*exp(.235))
         densAlt = int(round(densAlt))
+        densAlt = str(densAlt)
+
         if(len(densAlt)==3):
-            true_dens = '0 '+ str(densAlt[0])+ ' '+ str(densAlt[1]) + ' ' + str(densAlt[2])
+            true_dens = '0 '+ densAlt[0]+ ' '+ densAlt[1] + ' ' + densAlt[2]
         else:
-            true_dens = str(densAlt[0]) +' '+ str(densAlt[1]) +' '+ str(densAlt[2]) +' '+ str(densAlt[3])
-        
-        #Format: XXXXX weather information, XXXX zulu, Wind XXX at XX (gust XX), Temperature XX, Dew Point XX, Altimeter XXXX, Density Altitude XXXX, Remarks…    
+            true_dens = densAlt[0] +' '+ densAlt[1] +' '+ densAlt[2] +' '+ densAlt[3]
+            
         if(gust == 0):
-            mytext = loc + " weather information "+ true_time+ " zulu, wind "+ true_dir+" at "+ true_speed+ ", temperature " + true_ctemp+ ", Dew point "+true_dew+ ", Altimeter " + true_pressure+ ", Density Altitude "+true_dens     
+            mytext = loc + " weather information, , "+ true_time+ " zulu, wind, "+ true_dir+" at, "+ true_speed+ ", temperature, " + true_ctemp+ ",, Dew point,, "+true_dew+ ",, Altimeter,, " + true_pressure+ ", Density Altitude "+true_dens     
         else:
-            mytext = loc + " weather information "+ true_time+ " zulu, wind "+ true_dir+" at "+ true_speed+" gust "+ true_gust+ ", temperature " + true_ctemp+ ", Dew point "+true_dew+ ", Altimeter " + true_pressure+ ", Density Altitude "+true_dens
+            mytext = loc + " weather information, , "+ true_time+ " zulu, wind, "+ true_dir+" at, "+ true_speed+" ,gust, "+ str(true_gust)+ ", temperature, " + true_ctemp+ ",, Dew point,, "+true_dew+ ",, Altimeter,, " + true_pressure+ ", Density Altitude "+true_dens
+
     
     def SignalLength(self):
         if(carrier.g=GetSignal() == 0): #active low
