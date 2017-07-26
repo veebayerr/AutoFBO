@@ -28,9 +28,11 @@ class Main:
             #enough time to complete
             
             weather = WeatherPolling()
-        
-            command = countClicks()
-        
+            
+            #command = countClicks()
+            com = input('Enter command:\n')
+            print(com + '\n')
+            
             if(command == 1):
                 TransmitRadioCheck()
                 '''transmit radio check'''
@@ -112,9 +114,32 @@ class Main:
         #playback
         
         #getSignal strength
+        powerlvl = 0
         adc_str = 0
-        sig = (adc_str/1649)
-        None
+        adc_str = adc.read_adc(0,2,3300)
+        sig = (adc_str/1649.00)
+        if(sig<.38):
+            powerlvl = 10
+        elif(sig<.40):
+            powerlvl = 9
+        elif(sig<.42):
+            powerlvl = 8
+        elif(sig<.44):
+            powerlvl = 7
+        elif(sig<.46):
+            powerlvl = 6
+        elif(sig<.5):
+            powerlvl = 5
+        elif(sig<.62):
+            powerlvl = 4
+        elif(sig<.77):
+            powerlvl =3
+        elif(sig<.89):
+            powerlvl =2
+        elif(sig<.96):
+            powerlvl =1
+        else:
+            powerlvl = 0
 
     def TransmitWeather(): 
         
@@ -204,21 +229,21 @@ class Main:
             mytext = loc + " weather information, , "+ true_time+ " zulu, wind, "+ true_dir+" at, "+ true_speed+" ,gust, "+ str(true_gust)+ ", temperature, " + true_ctemp+ ",, Dew point,, "+true_dew+ ",, Altimeter,, " + true_pressure+ ", Density Altitude "+true_dens
 
     
-    def SignalLength(self):
-        if(carrier.g=GetSignal() == 0): #active low
-                start = time.now 
-                while(carrier.GetSignal() == 0):
-                    continue
-                end = time.now
-                timer = end-start
-                return timer
-        else:
-            return 0
+    #def SignalLength(self):
+     #   if(carrier.g=GetSignal() == 0): #active low
+      #          start = time.now 
+       #         while(carrier.GetSignal() == 0):
+        #            continue
+         #       end = time.now
+          #      timer = end-start
+           #     return timer
+        #else:
+         #   return 0
     
-    def GetSignal(self):
-        '''communicate with pi to get carrier detect'''
-        None
+   # def GetSignal(self):
+    #    '''communicate with pi to get carrier detect'''
+     #   None
         
-    def converter(self):
-        None
+    #def converter(self):
+     #   None
         
